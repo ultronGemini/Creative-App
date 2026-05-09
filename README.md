@@ -248,11 +248,11 @@ The app will be available at **http://localhost:5173**
 
 | Name | Role |
 |---|---|
-| [NOMBRE] | [ROL] |
-| [NOMBRE] | [ROL] |
-
+| Leonel Francisco Bailón Sifuentes | Backend & Agents |
+| Magda Giannina Colunga Minutti| Frontend |
+| Ian Roberto Rendón Berlanga | Backend & Base de datos |
 ---
 
 <p align="center">
-  Built with ❤️ at <strong>[NOMBRE_DEL_HACKATHON]</strong> · 2025
+  Built with ❤️ at <strong>HackDays</strong> · 2026
 </p>
