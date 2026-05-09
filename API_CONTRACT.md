@@ -18,23 +18,21 @@ Content-Type: application/json
 
 **Body**
 
-| Field           | Type   | Required | Values                        |
-|-----------------|--------|----------|-------------------------------|
-| `creative_mode` | string | yes      | `"visual"`, `"musical"`, `"writer"` |
-| `user_input`    | string | yes      | Free-text prompt from the user |
+| Field           | Type   | Required | Values |
+|-----------------|--------|----------|--------|
+| `creative_mode` | string | yes      | `"visual"`, `"opposites"`, `"musical"`, `"writer"` |
+| `user_input`    | string | no       | Free-text prompt. For `"writer"` mode: empty string → "no tengo idea" flow, non-empty → "ya tengo una idea" flow |
 
 ```json
 {
   "creative_mode": "visual",
-  "user_input": "melancholy forest at dawn"
+  "user_input": "bosque melancólico al amanecer"
 }
 ```
 
 ---
 
-### Response
-
-All modes share the same envelope:
+### Response envelope (all modes)
 
 ```json
 {
@@ -44,100 +42,146 @@ All modes share the same envelope:
 }
 ```
 
-| Field    | Type   | Values               |
-|----------|--------|----------------------|
-| `source` | string | `"gemini"` or `"mock"` (fallback when Gemini times out or rate-limits) |
-| `mode`   | string | Echoes back `creative_mode` from the request |
+| Field    | Type   | Values |
+|----------|--------|--------|
+| `source` | string | `"gemini"` — live response. `"mock"` — fallback when Gemini times out (>15 s) or rate-limits (429) |
+| `mode`   | string | Echoes back `creative_mode` |
 | `data`   | object | Shape varies by mode — see below |
 
 ---
 
 ### Response `data` by Mode
 
-#### Visual
+#### `visual`
 
 ```json
 {
-  "source": "gemini",
-  "mode": "visual",
-  "data": {
-    "palette": ["#1A1A2E", "#16213E", "#0F3460", "#E94560", "#F5A623"],
-    "composition_tip": "Use rule of thirds with high contrast between warm and cool tones.",
-    "opposite_prompt": "A volcanic eruption at sunset, molten lava flowing over black rock."
-  }
-}
-```
-
-| Field             | Type            | Description |
-|-------------------|-----------------|-------------|
-| `palette`         | string[]        | 5 hex color codes |
-| `composition_tip` | string          | Visual composition advice |
-| `opposite_prompt` | string          | Contrasting concept prompt |
-
----
-
-#### Musical
-
-```json
-{
-  "source": "gemini",
-  "mode": "musical",
-  "data": {
-    "tempo": 92,
-    "key": "D minor",
-    "instruments": ["cello", "synthesizer pad", "sparse piano", "ambient guitar"],
-    "mood_description": "A melancholic yet hopeful atmosphere, like rain clearing after a storm."
-  }
-}
-```
-
-| Field              | Type     | Description |
-|--------------------|----------|-------------|
-| `tempo`            | number   | BPM |
-| `key`              | string   | Musical key (e.g. `"D minor"`) |
-| `instruments`      | string[] | 3–5 suggested instruments |
-| `mood_description` | string   | Narrative mood description |
-
----
-
-#### Writer
-
-```json
-{
-  "source": "gemini",
-  "mode": "writer",
-  "data": {
-    "questions": [
-      {
-        "id": 1,
-        "question": "Would you rather your protagonist lose their memory or their voice?",
-        "option_a": "Lose their memory",
-        "option_b": "Lose their voice"
-      },
-      {
-        "id": 2,
-        "question": "Would you rather the story end in sacrifice or in exile?",
-        "option_a": "Sacrifice",
-        "option_b": "Exile"
-      },
-      {
-        "id": 3,
-        "question": "Would you rather reveal the villain in act one or the final page?",
-        "option_a": "Act one",
-        "option_b": "Final page"
-      }
+  "resumen": "Una exploración visual que fusiona la melancolía del otoño con la arquitectura brutalista...",
+  "temas": ["Decadencia urbana elegante", "Naturaleza reclamando espacios", "Monumentalidad íntima", "Texturas del tiempo"],
+  "ideasCollage": [
+    "Fotografías de fachadas brutalistas con plantas trepadoras",
+    "Texturas de óxido y musgo sobre metal",
+    "Paletas de colores terrosos con acentos de verde musgo",
+    "Tipografía serif pesada sobre fondos texturizados"
+  ],
+  "composicion": [
+    "Usar la regla de tercios para crear tensión entre elementos orgánicos e inorgánicos",
+    "Explorar formatos verticales que enfaticen la monumentalidad",
+    "Composiciones asimétricas que sugieran desequilibrio controlado"
+  ],
+  "paleta": {
+    "nombre": "Otoño Brutalista",
+    "colores": [
+      { "nombre": "Concreto Cálido", "hex": "#A89F91" },
+      { "nombre": "Óxido Profundo", "hex": "#8B4513" },
+      { "nombre": "Musgo Oscuro",   "hex": "#4A5D23" },
+      { "nombre": "Dorado Atardecer","hex": "#D4A574" },
+      { "nombre": "Grafito Suave",  "hex": "#5C5C5C" }
     ]
   }
 }
 ```
 
-| Field                  | Type     | Description |
-|------------------------|----------|-------------|
-| `questions`            | object[] | Array of 3 "Would You Rather" prompts |
-| `questions[n].id`      | number   | 1-based index |
-| `questions[n].question`| string   | The full question |
-| `questions[n].option_a`| string   | First choice label |
-| `questions[n].option_b`| string   | Second choice label |
+---
+
+#### `opposites`
+
+```json
+{
+  "conceptoOriginal": "Minimalismo tecnológico",
+  "opuesto": "Maximalismo artesanal",
+  "fusiones": [
+    "Interfaz digital que simula bordados tradicionales",
+    "Código fuente presentado como caligrafía manuscrita",
+    "Circuitos electrónicos interpretados como patrones textiles"
+  ],
+  "direccionVisual": "Explora la tensión entre la precisión digital y la imperfección humana..."
+}
+```
+
+---
+
+#### `musical`
+
+```json
+{
+  "resumen": "Una composición que captura la sensación de despertar lentamente en un día lluvioso...",
+  "emocion": "Nostalgia contemplativa",
+  "instrumento": "Piano",
+  "referencias": [
+    "Erik Satie - Gymnopédies (por su economía emocional)",
+    "Nils Frahm - Says (por la construcción gradual)",
+    "Ryuichi Sakamoto - Aqua (por la textura minimalista)"
+  ],
+  "tempoSugerido": "60-72 BPM - Andante sostenuto",
+  "recursosMusicales": [
+    "Acordes con novenas y oncenas para crear ambigüedad armónica",
+    "Uso de pedal sostenido para crear halos de resonancia",
+    "Melodías que respiran: frases cortas con silencios expresivos"
+  ],
+  "ejercicios": [
+    "Improvisa usando solo teclas negras durante 5 minutos",
+    "Toca una melodía simple y repítela añadiendo una nota cada vez",
+    "Graba el sonido de la lluvia y compón sobre él"
+  ],
+  "restriccionesCreativas": [
+    "Limítate a un rango de dos octavas",
+    "No uses el acorde de tónica hasta el final de la pieza",
+    "Cada frase debe terminar en una nota diferente"
+  ]
+}
+```
+
+---
+
+#### `writer` — sin idea (`user_input: ""`)
+
+```json
+{
+  "premisa": "En un mundo donde los recuerdos pueden transferirse entre personas...",
+  "tono": "Thriller psicológico con elementos de ciencia ficción íntima...",
+  "personaje": {
+    "nombre": "Elena Varga",
+    "descripcion": "Archivista de memorias de 34 años, meticulosa hasta la obsesión...",
+    "conflictoInterno": "Su identidad está construida sobre recuerdos que ya no puede verificar como propios..."
+  },
+  "primeraEscena": "Elena está catalogando el recuerdo de un desconocido cuando reconoce su propia risa en el fondo..."
+}
+```
+
+#### `writer` — con idea (`user_input: "<tu idea>"`)
+
+```json
+{
+  "worldbuilding": {
+    "reglas": [
+      "El don solo funciona con muertes violentas o traumáticas",
+      "Cada visión le quita un recuerdo propio aleatorio",
+      "No puede ver rostros, solo siluetas y emociones",
+      "El efecto dura exactamente 47 segundos"
+    ],
+    "conflictos": [
+      "Conflicto con el sistema judicial: sus visiones no son pruebas admisibles",
+      "Tensión con su familia: ha olvidado momentos importantes con ellos",
+      "Dilema ético: ¿vale la pena perder tu pasado para resolver el de otros?"
+    ],
+    "contradicciones": [
+      "⚠️ Si no puede ver rostros, ¿cómo identifica a los asesinos?",
+      "⚠️ Definir: ¿qué cuenta como 'muerte traumática'?"
+    ]
+  },
+  "preguntasInvestigacion": [
+    "¿Cómo funciona la memoria a largo plazo vs. corto plazo?",
+    "¿Qué casos reales de sinestesia o habilidades perceptuales atípicas existen?",
+    "¿Cuáles son los procedimientos forenses actuales para determinar causa de muerte?"
+  ],
+  "factCheckRequerido": [
+    "📋 Procedimientos policiales para escenas del crimen",
+    "📋 Efectos psicológicos del trauma vicario en investigadores",
+    "📋 Límites legales del testimonio de testigos"
+  ]
+}
+```
 
 ---
 
@@ -145,34 +189,34 @@ All modes share the same envelope:
 
 | Status | When |
 |--------|------|
-| `400`  | `creative_mode` is not `visual`, `musical`, or `writer` |
+| `400`  | `creative_mode` is not one of the four valid values |
 | `500`  | Unexpected Gemini or server error |
 
 ```json
-{ "detail": "Invalid creative_mode 'foo'. Use: visual, musical, writer." }
+{ "detail": "Invalid creative_mode 'foo'. Use: visual, opposites, musical, writer." }
 ```
 
-> **Note:** Gemini timeouts (>5 s) and rate-limit errors (HTTP 429) do **not** return an error — the backend silently falls back to mock data and returns `"source": "mock"`.
+> Gemini timeouts and 429 rate-limit errors are handled silently — the backend returns `"source": "mock"` with pre-written fallback data instead of an error.
 
 ---
 
 ## React Usage Example
 
 ```tsx
-const API_BASE = "http://localhost:8000/api/v1";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
-interface InspireResponse<T> {
+interface InspireEnvelope<T> {
   source: "gemini" | "mock";
   mode: string;
   data: T;
 }
 
-function useInspire() {
+function useInspire<T>() {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<InspireResponse<unknown> | null>(null);
+  const [result, setResult] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function inspire(mode: "visual" | "musical" | "writer", input: string) {
+  async function inspire(mode: string, input: string) {
     setLoading(true);
     setError(null);
 
@@ -188,7 +232,9 @@ function useInspire() {
         throw new Error(err.detail ?? `HTTP ${res.status}`);
       }
 
-      setResult(await res.json());
+      const json: InspireEnvelope<T> = await res.json();
+      if (json.source === "mock") console.warn("Backend returned mock data");
+      setResult(json.data);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
@@ -200,19 +246,11 @@ function useInspire() {
 }
 ```
 
-**Usage in a component:**
-
+**Usage:**
 ```tsx
-const { inspire, loading, result, error } = useInspire();
-
-// Gemini responses can take 3–5 s — show a loading state
+// Gemini can take 5–15 s on the first request — always show a loading state
 if (loading) return <LoadingState />;
 if (error)   return <ErrorState message={error} />;
-
-// Check source to distinguish live vs. fallback data
-if (result?.source === "mock") {
-  console.warn("Displaying mock data — Gemini unavailable");
-}
 ```
 
 ---
@@ -220,14 +258,22 @@ if (result?.source === "mock") {
 ## Running Locally
 
 ```bash
-# Backend (port 8000)
+# Terminal 1 — Backend (port 8000)
 cd backend
 uvicorn app.main:app --reload
 
-# Frontend (port 3000)
+# Terminal 2 — Frontend (port 3000)
 cd frontend
-pnpm install   # first time only
+pnpm install    # first time only
 pnpm dev
 ```
 
-Set `USE_MOCK_DATA = false` in `frontend/src/services/api.ts` to connect to the live backend.
+**Environment variables:**
+
+| Var | Where | Value |
+|-----|-------|-------|
+| `GEMINI_API_KEY` | `backend/.env` | Your Google AI Studio key |
+| `NEXT_PUBLIC_API_URL` | Vercel dashboard / `.env.local` | Your deployed backend URL (e.g. `https://creativeapp.railway.app/api/v1`) |
+| `ALLOWED_ORIGINS` | Railway/Render env vars | Your deployed frontend URL (e.g. `https://creativeapp.vercel.app`) |
+
+`USE_MOCK_DATA` in `frontend/src/services/api.ts` is now set to `false` — the frontend will hit the real backend.

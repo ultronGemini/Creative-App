@@ -1,9 +1,3 @@
-// =============================================================================
-// SERVICIO DE API PARA HOJA EN BLANCO
-// Este servicio encapsula todas las llamadas HTTP al backend FastAPI
-// Actualmente usa datos mock, pero está preparado para conexión real
-// =============================================================================
-
 import type {
   ApiResponse,
   InspiracionVisual,
@@ -11,13 +5,12 @@ import type {
   InspiracionEscrituraSinIdea,
   InspiracionEscrituraConIdea,
   ResultadoOpuestos,
+  TarjetaInspiracion,
   Modo,
-  ModoEscritura,
 } from '@/src/types';
 
 import {
   mockInspiracionVisual,
-  mockInspiracionMusical,
   mockEscrituraSinIdea,
   mockEscrituraConIdea,
   mockResultadoOpuestos,
@@ -25,15 +18,10 @@ import {
   generarInspiracionMusicalAleatoria,
 } from '@/src/data/mockData';
 
-// =============================================================================
-// CONFIGURACIÓN
-// Cambiar USE_MOCK_DATA a false cuando el backend FastAPI esté listo
-// =============================================================================
-
-const USE_MOCK_DATA = true;
+// Set to true to bypass the backend and use local mock data instead
+const USE_MOCK_DATA = false;
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
-// Simular latencia de red para una experiencia más realista
 const MOCK_DELAY_MS = 800;
 
 function delay(ms: number): Promise<void> {
@@ -41,30 +29,40 @@ function delay(ms: number): Promise<void> {
 }
 
 // =============================================================================
-// FUNCIONES AUXILIARES
+// INTERNAL HELPERS
 // =============================================================================
 
-async function fetchApi<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<ApiResponse<T>> {
+function makeTarjeta(
+  id: string,
+  tipo: Modo,
+  titulo: string,
+  contenido: string,
+  tags: string[] = []
+): TarjetaInspiracion {
+  return { id, tipo, titulo, contenido, tags, guardada: false, fechaCreacion: new Date() };
+}
+
+interface BackendEnvelope<T> {
+  source: 'gemini' | 'mock';
+  mode: string;
+  data: T;
+}
+
+async function callInspire<T>(creative_mode: string, user_input: string): Promise<ApiResponse<T>> {
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      ...options,
+    const res = await fetch(`${API_BASE_URL}/inspire`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ creative_mode, user_input }),
     });
-
-    if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error((err as { detail?: string }).detail ?? `HTTP ${res.status}`);
     }
-
-    const data = await response.json();
-    return { success: true, data };
+    const json: BackendEnvelope<T> = await res.json();
+    return { success: true, data: json.data };
   } catch (error) {
-    console.error(`API Error [${endpoint}]:`, error);
+    console.error(`API Error [${creative_mode}]:`, error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Error desconocido',
@@ -73,9 +71,7 @@ async function fetchApi<T>(
 }
 
 // =============================================================================
-// API DE INSPIRACIÓN VISUAL
-// Endpoints: POST /v1/inspiracion, POST /v1/opuestos, POST /v1/imagenes
-// Backend usa: orquestador_visual, Gemini generateContent, structured output JSON
+// VISUAL
 // =============================================================================
 
 export async function generarInspiracionVisual(
@@ -83,22 +79,24 @@ export async function generarInspiracionVisual(
 ): Promise<ApiResponse<InspiracionVisual>> {
   if (USE_MOCK_DATA) {
     await delay(MOCK_DELAY_MS);
-    // Simular variación en respuestas
-    const resultado = concepto
-      ? mockInspiracionVisual
-      : generarInspiracionVisualAleatoria();
-    return { success: true, data: resultado };
+    return { success: true, data: concepto ? mockInspiracionVisual : generarInspiracionVisualAleatoria() };
   }
 
-  // TODO: Conectar con backend FastAPI
-  // El backend llamará a:
-  // - orquestador_visual para coordinar la generación
-  // - Gemini generateContent con structured output JSON
-  // - Posiblemente Imagen para generación de referencias visuales
-  return fetchApi<InspiracionVisual>('/inspiracion', {
-    method: 'POST',
-    body: JSON.stringify({ modo: 'visual' as Modo, concepto }),
-  });
+  type BackendVisual = Omit<InspiracionVisual, 'tarjetas'>;
+  const result = await callInspire<BackendVisual>('visual', concepto);
+  if (!result.success || !result.data) return result as ApiResponse<InspiracionVisual>;
+
+  const d = result.data;
+  return {
+    success: true,
+    data: {
+      ...d,
+      tarjetas: [
+        makeTarjeta('vis-1', 'visual', 'Dirección Principal', d.resumen, d.temas.slice(0, 2)),
+        makeTarjeta('vis-2', 'visual', 'Paleta Sugerida', d.paleta.nombre, ['color', 'paleta']),
+      ],
+    },
+  };
 }
 
 export async function generarOpuestos(
@@ -106,56 +104,22 @@ export async function generarOpuestos(
 ): Promise<ApiResponse<ResultadoOpuestos>> {
   if (USE_MOCK_DATA) {
     await delay(MOCK_DELAY_MS);
-    return {
-      success: true,
-      data: {
-        ...mockResultadoOpuestos,
-        conceptoOriginal: concepto,
-      },
-    };
+    return { success: true, data: { ...mockResultadoOpuestos, conceptoOriginal: concepto } };
   }
 
-  // TODO: Conectar con backend FastAPI
-  // El backend llamará a:
-  // - orquestador_opuestos para generar el concepto opuesto
-  // - Gemini generateContent para fusiones creativas
-  return fetchApi<ResultadoOpuestos>('/opuestos', {
-    method: 'POST',
-    body: JSON.stringify({ concepto }),
-  });
+  return callInspire<ResultadoOpuestos>('opposites', concepto);
 }
 
+// Image generation is not yet implemented in the backend — returns placeholders
 export async function generarImagenes(
-  prompt: string
+  _prompt: string
 ): Promise<ApiResponse<string[]>> {
-  if (USE_MOCK_DATA) {
-    await delay(MOCK_DELAY_MS);
-    // Retornar URLs de placeholder
-    return {
-      success: true,
-      data: [
-        '/placeholder-visual-1.jpg',
-        '/placeholder-visual-2.jpg',
-        '/placeholder-visual-3.jpg',
-      ],
-    };
-  }
-
-  // TODO: Conectar con backend FastAPI
-  // El backend llamará a:
-  // - Modelo de generación de imágenes (Imagen u otro)
-  // - Almacenamiento de assets en servicio de storage
-  return fetchApi<string[]>('/imagenes', {
-    method: 'POST',
-    body: JSON.stringify({ prompt }),
-  });
+  await delay(MOCK_DELAY_MS);
+  return { success: true, data: ['/placeholder.jpg', '/placeholder.jpg', '/placeholder.jpg'] };
 }
 
 // =============================================================================
-// API DE INSPIRACIÓN MUSICAL
-// Endpoint: POST /v1/inspiracion
-// Backend usa: orquestador_musica, Gemini generateContent, structured output JSON
-// Nota: En fases futuras podría incluir análisis de audio
+// MUSICAL
 // =============================================================================
 
 export async function generarInspiracionMusical(
@@ -164,28 +128,28 @@ export async function generarInspiracionMusical(
 ): Promise<ApiResponse<InspiracionMusical>> {
   if (USE_MOCK_DATA) {
     await delay(MOCK_DELAY_MS);
-    return {
-      success: true,
-      data: generarInspiracionMusicalAleatoria(emocion, instrumento),
-    };
+    return { success: true, data: generarInspiracionMusicalAleatoria(emocion, instrumento) };
   }
 
-  // TODO: Conectar con backend FastAPI
-  // El backend llamará a:
-  // - orquestador_musica para coordinar la generación
-  // - Gemini generateContent con structured output JSON
-  // - Posible análisis de audio en fases futuras
-  return fetchApi<InspiracionMusical>('/inspiracion', {
-    method: 'POST',
-    body: JSON.stringify({ modo: 'musica' as Modo, emocion, instrumento }),
-  });
+  type BackendMusical = Omit<InspiracionMusical, 'tarjetas'>;
+  const result = await callInspire<BackendMusical>('musical', `${emocion} con ${instrumento}`);
+  if (!result.success || !result.data) return result as ApiResponse<InspiracionMusical>;
+
+  const d = result.data;
+  return {
+    success: true,
+    data: {
+      ...d,
+      tarjetas: [
+        makeTarjeta('mus-1', 'musica', 'Dirección Emocional', d.resumen, ['emoción', 'atmósfera']),
+        makeTarjeta('mus-2', 'musica', 'Restricción Creativa', d.restriccionesCreativas[0] ?? '', ['restricción']),
+      ],
+    },
+  };
 }
 
 // =============================================================================
-// API DE INSPIRACIÓN ESCRITURA
-// Endpoints: POST /v1/inspiracion, POST /v1/fact-check, POST /v1/research
-// Backend usa: orquestador_escritura, Gemini generateContent, structured output JSON
-// También: búsqueda externa, fuentes verificadas, Postgres para proyectos
+// ESCRITURA
 // =============================================================================
 
 export async function generarInspiracionEscrituraSinIdea(): Promise<
@@ -196,17 +160,22 @@ export async function generarInspiracionEscrituraSinIdea(): Promise<
     return { success: true, data: mockEscrituraSinIdea };
   }
 
-  // TODO: Conectar con backend FastAPI
-  // El backend llamará a:
-  // - orquestador_escritura con modo "sin-idea"
-  // - Gemini generateContent para premisa, tono, personaje, escena
-  return fetchApi<InspiracionEscrituraSinIdea>('/inspiracion', {
-    method: 'POST',
-    body: JSON.stringify({
-      modo: 'escritura' as Modo,
-      modoEscritura: 'no-se-que-escribir' as ModoEscritura,
-    }),
-  });
+  // Empty user_input signals "sin idea" mode to the backend
+  type BackendSinIdea = Omit<InspiracionEscrituraSinIdea, 'tarjetas'>;
+  const result = await callInspire<BackendSinIdea>('writer', '');
+  if (!result.success || !result.data) return result as ApiResponse<InspiracionEscrituraSinIdea>;
+
+  const d = result.data;
+  return {
+    success: true,
+    data: {
+      ...d,
+      tarjetas: [
+        makeTarjeta('esc-1', 'escritura', 'Premisa Central', d.premisa, ['premisa']),
+        makeTarjeta('esc-2', 'escritura', 'Primera Escena', d.primeraEscena, ['apertura', 'gancho']),
+      ],
+    },
+  };
 }
 
 export async function generarInspiracionEscrituraConIdea(
@@ -214,106 +183,59 @@ export async function generarInspiracionEscrituraConIdea(
 ): Promise<ApiResponse<InspiracionEscrituraConIdea>> {
   if (USE_MOCK_DATA) {
     await delay(MOCK_DELAY_MS);
-    return {
-      success: true,
-      data: {
-        ...mockEscrituraConIdea,
-        ideaOriginal: idea,
-      },
-    };
+    return { success: true, data: { ...mockEscrituraConIdea, ideaOriginal: idea } };
   }
 
-  // TODO: Conectar con backend FastAPI
-  // El backend llamará a:
-  // - orquestador_escritura con modo "con-idea"
-  // - Gemini generateContent para worldbuilding
-  // - Detección de contradicciones
-  // - Generación de preguntas de investigación
-  return fetchApi<InspiracionEscrituraConIdea>('/inspiracion', {
-    method: 'POST',
-    body: JSON.stringify({
-      modo: 'escritura' as Modo,
-      modoEscritura: 'ya-tengo-idea' as ModoEscritura,
-      idea,
-    }),
-  });
+  // Non-empty user_input signals "con idea" mode to the backend
+  type BackendConIdea = Omit<InspiracionEscrituraConIdea, 'tarjetas' | 'ideaOriginal'>;
+  const result = await callInspire<BackendConIdea>('writer', idea);
+  if (!result.success || !result.data) return result as ApiResponse<InspiracionEscrituraConIdea>;
+
+  const d = result.data;
+  return {
+    success: true,
+    data: {
+      ...d,
+      ideaOriginal: idea,
+      tarjetas: [
+        makeTarjeta('esc-3', 'escritura', 'Reglas del Mundo', d.worldbuilding.reglas[0] ?? '', ['worldbuilding']),
+        makeTarjeta('esc-4', 'escritura', 'Contradicciones', d.worldbuilding.contradicciones[0] ?? '', ['revisión']),
+      ],
+    },
+  };
 }
+
+// =============================================================================
+// NOT YET IMPLEMENTED IN BACKEND — returns mock data
+// =============================================================================
 
 export async function verificarFactCheck(
   items: string[]
 ): Promise<ApiResponse<Record<string, boolean>>> {
-  if (USE_MOCK_DATA) {
-    await delay(MOCK_DELAY_MS);
-    // Simular resultados de verificación
-    const resultados: Record<string, boolean> = {};
-    items.forEach((item) => {
-      resultados[item] = Math.random() > 0.3; // 70% verificados
-    });
-    return { success: true, data: resultados };
-  }
-
-  // TODO: Conectar con backend FastAPI
-  // El backend llamará a:
-  // - Búsqueda externa en fuentes verificadas
-  // - Validación contra bases de conocimiento
-  return fetchApi<Record<string, boolean>>('/fact-check', {
-    method: 'POST',
-    body: JSON.stringify({ items }),
-  });
+  await delay(MOCK_DELAY_MS);
+  const resultados: Record<string, boolean> = {};
+  items.forEach((item) => { resultados[item] = Math.random() > 0.3; });
+  return { success: true, data: resultados };
 }
 
 export async function buscarInvestigacion(
   query: string
 ): Promise<ApiResponse<string[]>> {
-  if (USE_MOCK_DATA) {
-    await delay(MOCK_DELAY_MS);
-    return {
-      success: true,
-      data: [
-        `Resultado de investigación para: "${query}"`,
-        'Artículo relacionado encontrado en fuentes académicas',
-        'Referencia histórica relevante identificada',
-      ],
-    };
-  }
-
-  // TODO: Conectar con backend FastAPI
-  // El backend llamará a:
-  // - orquestador_research
-  // - Búsqueda en fuentes verificadas
-  // - Agregación de resultados relevantes
-  return fetchApi<string[]>('/research', {
-    method: 'POST',
-    body: JSON.stringify({ query }),
-  });
+  await delay(MOCK_DELAY_MS);
+  return {
+    success: true,
+    data: [
+      `Resultado de investigación para: "${query}"`,
+      'Artículo relacionado encontrado en fuentes académicas',
+      'Referencia histórica relevante identificada',
+    ],
+  };
 }
-
-// =============================================================================
-// API DE PROYECTOS
-// Endpoint: POST /v1/proyectos
-// Backend usa: Postgres para persistencia
-// Nota: No se implementa autenticación en esta versión
-// =============================================================================
 
 export async function guardarProyecto(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  proyecto: any
+  _proyecto: any
 ): Promise<ApiResponse<{ id: string }>> {
-  if (USE_MOCK_DATA) {
-    await delay(MOCK_DELAY_MS);
-    return {
-      success: true,
-      data: { id: `proyecto-${Date.now()}` },
-    };
-  }
-
-  // TODO: Conectar con backend FastAPI
-  // El backend:
-  // - Validará el proyecto
-  // - Guardará en Postgres
-  // - Retornará el ID generado
-  return fetchApi<{ id: string }>('/proyectos', {
-    method: 'POST',
-    body: JSON.stringify(proyecto),
-  });
+  await delay(MOCK_DELAY_MS);
+  return { success: true, data: { id: `proyecto-${Date.now()}` } };
 }
