@@ -2,8 +2,6 @@
 
 import { Paintbrush, Music, Pen, Sparkles, Lightbulb, Zap } from 'lucide-react';
 import { SectionCard } from '@/src/components/SectionCard';
-import { PaletteDisplay } from '@/src/components/PaletteDisplay';
-import { paletaNieblaCarmesi } from '@/src/data/mockData';
 import { textos } from '@/src/config';
 import type { Modo } from '@/src/types';
 
@@ -108,13 +106,6 @@ export function InicioView({ onNavigate }: InicioViewProps) {
         </div>
       </section>
 
-      {/* Palette Reference */}
-      <section>
-        <h2 className="mb-4 text-center text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Nuestra paleta de referencia
-        </h2>
-        <PaletteDisplay paleta={paletaNieblaCarmesi} className="mx-auto max-w-md" />
-      </section>
     </div>
   );
 }

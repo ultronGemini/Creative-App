@@ -34,12 +34,12 @@ export const colors = {
 
 export const textos = {
   app: {
-    nombre: 'Hoja en Blanco',
+    nombre: 'Primer Boceto',
     tagline: 'Motor de Ignición Creativa',
     descripcion: 'Convierte la hoja en blanco en tu primera decisión creativa.',
   },
   inicio: {
-    titulo: 'Tu próxima obra comienza con una provocación',
+    titulo: 'Nosotros te damos el PASO CERO',
     subtitulo: 'No somos un chatbot. Somos un sistema de provocaciones creativas diseñado para encender tu imaginación.',
     explicacion: 'Elige tu medio y deja que te guiemos hacia tu primera decisión creativa.',
   },

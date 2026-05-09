@@ -19,7 +19,7 @@ export function Shell({ children, currentSection, onNavigate }: ShellProps) {
       <footer className="border-t border-border bg-card py-8">
         <div className="mx-auto max-w-6xl px-4 text-center sm:px-6 lg:px-8">
           <p className="text-sm text-muted-foreground">
-            Hoja en Blanco — Motor de Ignición Creativa
+            Primer Boceto — Motor de Ignición Creativa
           </p>
           <p className="mt-1 text-xs text-muted-foreground/70">
             No somos un chatbot. Somos provocaciones para tu creatividad.

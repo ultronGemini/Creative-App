@@ -7,7 +7,6 @@ import { PaletteDisplay } from '@/src/components/PaletteDisplay';
 import { LoadingCards } from '@/src/components/LoadingState';
 import { ErrorState } from '@/src/components/ErrorState';
 import { generarInspiracionVisual, generarOpuestos } from '@/src/services/api';
-import { paletaNieblaCarmesi } from '@/src/data/mockData';
 import { textos } from '@/src/config';
 import type { InspiracionVisual, ResultadoOpuestos, TarjetaInspiracion } from '@/src/types';
 
@@ -276,13 +275,6 @@ export function VisualView({ tarjetasGuardadas, onToggleSave }: VisualViewProps)
         </section>
       )}
 
-      {/* Reference Palette */}
-      <section className="pt-8">
-        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Paleta de Referencia
-        </h3>
-        <PaletteDisplay paleta={paletaNieblaCarmesi} />
-      </section>
     </div>
   );
 }

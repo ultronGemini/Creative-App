@@ -27,10 +27,10 @@ export function Navigation({ currentSection, onNavigate }: NavigationProps) {
             className="flex items-center gap-2 transition-opacity hover:opacity-80"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <span className="text-sm font-bold text-primary-foreground">HB</span>
+              <span className="text-sm font-bold text-primary-foreground">PB</span>
             </div>
             <span className="hidden font-serif text-lg font-semibold text-foreground sm:block">
-              Hoja en Blanco
+              Primer Boceto
             </span>
           </button>
 
