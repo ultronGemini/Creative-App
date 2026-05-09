@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"c:\\\\Users\\\\52812\\\\Documents\\\\Work\\\\Personal\\\\Workplace 2nd Edition\\\\Hackathones\\\\Temis-RiskControl\" log --oneline -20)",
+      "Bash(git -C \"c:\\\\Users\\\\52812\\\\Documents\\\\Work\\\\Personal\\\\Workplace 2nd Edition\\\\Hackathones\\\\Temis-RiskControl\" log --oneline -25)",
+      "Bash(git -C \"c:\\\\Users\\\\52812\\\\Documents\\\\Work\\\\Personal\\\\Workplace 2nd Edition\\\\Hackathones\\\\Temis-RiskControl\" log --all --oneline -30)",
+      "Bash(git -C \"c:\\\\Users\\\\52812\\\\Documents\\\\Work\\\\Personal\\\\Workplace 2nd Edition\\\\Hackathones\\\\Temis-RiskControl\" show HEAD --stat)",
+      "Bash(git -C \"c:\\\\Users\\\\52812\\\\Documents\\\\Work\\\\Personal\\\\Workplace 2nd Edition\\\\Hackathones\\\\Temis-RiskControl\" show e3919fd --stat)",
+      "Bash(git -C \"c:\\\\Users\\\\52812\\\\Documents\\\\Work\\\\Personal\\\\Workplace 2nd Edition\\\\Hackathones\\\\Temis-RiskControl\" show e3919fd:README.md)"
+    ]
+  }
+}

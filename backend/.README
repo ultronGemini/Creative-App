@@ -1,0 +1,37 @@
+BACKEND ARCHITECTURE AND FOLDER STRUCTURE
+
+ROOT DIRECTORY
+├── .pytest_cache/      # Auto-generated cache for testing
+├── app/                # Main application source code
+│   ├── _pycache_/      # Python compiled files
+│   ├── api/            # API Route handlers (Endpoints)
+│   ├── core/           # Configuration, security, and global constants
+│   ├── database/       # Connection logic and migrations
+│   ├── entities/       # Domain objects or business logic definitions
+│   ├── infra/          # External service integrations (Gemini API, Lyria, etc.)
+│   ├── models/         # Database schemas / ORM models (PostgreSQL)
+│   └── repositories/   # Data access layer logic
+├── tests/              # Unit and integration tests
+├── venv/               # Python virtual environment
+├── .env.example        # Template for environment variables (API Keys)
+├── .gitignore          # Files to be ignored by Git
+└── requirements.txt    # Project dependencies (FastAPI, GenAI, etc.)
+
+ARCHITECTURE OVERVIEW (CLEAN ARCHITECTURE APPROACH)
+
+1. API Layer (app/api):
+   - Handles HTTP requests from the Swift frontend.
+   - Responsible for request validation and response formatting (JSON).
+
+2. Infra Layer (app/infra):
+   - This is where the Gemini 3.1 Flash-Lite, Nano Banana 2, and Lyria 3 
+     integrations live. 
+   - Handles communication with Google Cloud/Vertex AI.
+
+3. Models & Database (app/models & app/database):
+   - Defines the PostgreSQL structure.
+   - Manages persistence for user creative sessions or history.
+
+4. Core (app/core):
+   - Stores the logic for loading the .env file and configuring 
+     the Global Generative AI settings.
