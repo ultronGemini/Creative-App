@@ -69,16 +69,16 @@ The platform supports three creative roles:
 > 🖼️ *Replace the placeholders below with GIFs or screenshots of the app in action.*
 
 ### Home — Paso Cero
-![Home Screen](https://via.placeholder.com/900x500.png?text=📸+INSERT+HOME+SCREEN+GIF+HERE)
+<img width="1920" height="947" alt="photo4" src="https://github.com/user-attachments/assets/2a42a77e-d4e8-47cd-9f08-e7b9411f38d8" />
 
 ### Visual Mode — Palette Generation
-![Visual Mode](https://via.placeholder.com/900x500.png?text=📸+INSERT+VISUAL+MODE+SCREENSHOT+HERE)
+<img width="1920" height="951" alt="photo1" src="https://github.com/user-attachments/assets/178e06fb-8fe3-410b-8eeb-a30b16c21861" />
 
 ### Musical Mode — Mood & Clip Generation
-![Musical Mode](https://via.placeholder.com/900x500.png?text=📸+INSERT+MUSICAL+MODE+SCREENSHOT+HERE)
+<img width="1920" height="958" alt="photo2" src="https://github.com/user-attachments/assets/366fd8e3-83b8-4b28-a36b-e0277edccb7c" />
 
 ### Writer Mode — Worldbuilding Output
-![Writer Mode](https://via.placeholder.com/900x500.png?text=📸+INSERT+WRITER+MODE+SCREENSHOT+HERE)
+<img width="1920" height="947" alt="photo3" src="https://github.com/user-attachments/assets/9a12b1d5-3d2c-43f1-b1d5-3402d8a1c929" />
 
 ---
 
