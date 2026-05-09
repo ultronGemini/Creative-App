@@ -1,5 +1,5 @@
 <h1 align="center">
-  🎨 [NOMBRE_DE_LA_APP]
+  🎨 Primer Boceto
 </h1>
 
 <h3 align="center">
@@ -42,7 +42,7 @@
 
 Every creative has faced it — the **blank page**. That moment of paralysis where the cursor blinks and inspiration refuses to show up. Whether you're a visual artist staring at an empty canvas, a musician stuck on the first chord, or a writer frozen before chapter one, the _síndrome de la página en blanco_ is real, universal, and creatively devastating.
 
-**[NOMBRE_DE_LA_APP]** is an AI-powered creative ignition engine. We don't write, paint, or compose *for* you. Instead, we give you **the zero step** — the provocation, the spark, the first decision — so you can take it from there.
+**Primer Boceto** is an AI-powered creative ignition engine. We don't write, paint, or compose *for* you. Instead, we give you **the zero step** — the provocation, the spark, the first decision — so you can take it from there.
 
 The platform supports three creative roles:
 
@@ -87,7 +87,7 @@ The platform supports three creative roles:
 ### Monorepo Structure
 
 ```
-[NOMBRE_DE_LA_APP]/
+Primer Boceto/
 ├── backend/          # FastAPI — Python API & AI agent orchestration
 ├── frontend/         # React + Vite — Web UI
 ├── API_CONTRACT.md   # Shared API specification
@@ -114,7 +114,7 @@ The platform supports three creative roles:
 
 ### 🤖 AI & Agents — *The Heart of the System*
 
-This is where [NOMBRE_DE_LA_APP] goes beyond a simple chatbot. We orchestrate **three specialized Google AI models** running on **Google Cloud Platform (Pay-as-you-go)** to deliver low-latency, high-quality creative output:
+This is where Primer Boceto goes beyond a simple chatbot. We orchestrate **three specialized Google AI models** running on **Google Cloud Platform (Pay-as-you-go)** to deliver low-latency, high-quality creative output:
 
 | Model | Role | Why |
 |---|---|---|
@@ -143,7 +143,7 @@ FastAPI /api/v1/inspire
 
 ## 🚀 Local Setup
 
-Follow these steps exactly to run [NOMBRE_DE_LA_APP] on your machine.
+Follow these steps exactly to run Primer Boceto on your machine.
 
 ### Prerequisites
 - Python 3.12+
@@ -156,7 +156,7 @@ Follow these steps exactly to run [NOMBRE_DE_LA_APP] on your machine.
 
 ```bash
 git clone [REPO_URL]
-cd [NOMBRE_DE_LA_APP]
+cd Primer Boceto
 ```
 
 ---
